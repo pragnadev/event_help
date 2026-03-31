@@ -1,0 +1,95 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: rooms
+    // Fields: name, duration, createdAt, adminUid, volunteerKey, headKey, organizerKey
+    //
+    // Collection: alerts
+    // Fields: roomId, type, targetRole, message, senderUid, senderRole, createdAt
+    //
+    // Collection: locations
+    // Fields: roomId, role, lat, lng, updatedAt
+    //
+    // Collection: users
+    // Fields: roomId, role, name
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isRoomAdmin(roomId) {
+      return isAuthenticated() && get(/databases/$(database)/documents/rooms/$(roomId)).data.adminUid == request.auth.uid;
+    }
+
+    function isUserInRoom(roomId) {
+      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roomId == roomId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+        (request.auth.token.email == "pragnadev.io@gmail.com" && request.auth.token.email_verified == true)
+      );
+    }
+
+    // Rooms
+    match /rooms/{roomId} {
+      allow create: if isAuthenticated();
+      allow read: if isAuthenticated() && (resource.data.adminUid == request.auth.uid || isUserInRoom(roomId));
+      allow update: if isRoomAdmin(roomId);
+    }
+
+    // Users
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Alerts
+    match /alerts/{alertId} {
+      allow read: if isAuthenticated() && isUserInRoom(resource.data.roomId);
+      allow create: if isAuthenticated() && isUserInRoom(request.resource.data.roomId) && (
+        (request.resource.data.type == 'everyone') || 
+        (request.resource.data.type == 'role' && isRoomAdmin(request.resource.data.roomId))
+      );
+    }
+
+    // Locations
+    match /locations/{userId} {
+      allow read: if isAuthenticated() && isUserInRoom(resource.data.roomId);
+      allow create, update: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Chats
+    match /chats/{chatId} {
+      allow read: if isAuthenticated() && isUserInRoom(resource.data.roomId) && (
+        resource.data.targetRole == null || 
+        resource.data.targetRole == 'everyone' || 
+        resource.data.targetRole == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
+      allow create: if isAuthenticated() && isUserInRoom(request.resource.data.roomId);
+    }
+
+    // Tasks
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated() && isUserInRoom(resource.data.roomId);
+      allow create: if isAuthenticated() && isUserInRoom(request.resource.data.roomId);
+      allow update: if isAuthenticated() && isUserInRoom(resource.data.roomId);
+    }
+
+    // Activities
+    match /activities/{activityId} {
+      allow read: if isAuthenticated() && isUserInRoom(resource.data.roomId);
+      allow create: if isAuthenticated() && isUserInRoom(request.resource.data.roomId);
+    }
+  }
+}

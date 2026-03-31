@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Event Alert & Management System
 
 A secure, role-based real-time communication platform for event management. Features a Discord-style chat, live map tracking, and specialized controls for different roles (Admin, Organizer, Delegate, Volunteer, and Everyone).
@@ -157,3 +158,41 @@ While SQLite is perfect for local demos, a production app should use **PostgreSQ
 - **Backend**: Node.js, Express, TypeScript, Prisma.
 - **Database**: SQLite (Local), PostgreSQL (Production).
 - **Security**: JWT Sessions, AES-256-GCM Encryption.
+=======
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+</div>
+
+# Run and deploy your AI Studio app
+
+This contains everything you need to run your app locally.
+
+View your app in AI Studio: https://ai.studio/apps/f163af9d-218f-4f31-9468-3814adc7d6ca
+
+## Run Locally
+
+**Prerequisites:**  Node.js
+
+
+1. Install dependencies:
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`
+
+## Deploy on SnapDeploy (Docker)
+
+This repo includes a production `Dockerfile` that:
+- builds the Vite app to `dist/`
+- serves it via a tiny Express server (`server.mjs`)
+- listens on `PORT` (required by container platforms)
+
+### SnapDeploy settings
+
+- **Build type**: Dockerfile (repo root)
+- **Start command**: uses the `Dockerfile` `CMD` (no extra command needed)
+- **Environment variables**:
+  - `GEMINI_API_KEY` (used at build time for the Vite bundle)
+
+If SnapDeploy shows a **502**, verify the platform is setting `PORT` and that the container is healthy (it should bind `0.0.0.0:$PORT`).
+>>>>>>> bfe29b1 (Initial commit)

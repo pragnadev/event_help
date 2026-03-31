@@ -1,0 +1,5 @@
+{
+  "name": "EventGuard: Role-Based Alerts & Panic System",
+  "description": "A secure event management platform for organizers to track personnel, send role-based alerts, and manage emergencies with a live interactive map.",
+  "requestFramePermissions": ["geolocation"]
+}

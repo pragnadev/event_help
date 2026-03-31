@@ -1,0 +1,112 @@
+{
+  "entities": {
+    "Room": {
+      "title": "Room",
+      "description": "An event room created by an admin.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "The name of the event." },
+        "duration": { "type": "number", "description": "Duration in hours." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the room was created." },
+        "adminUid": { "type": "string", "description": "UID of the admin who created the room." },
+        "volunteerKey": { "type": "string", "description": "Key for volunteers to join." },
+        "headKey": { "type": "string", "description": "Key for heads to join." },
+        "organizerKey": { "type": "string", "description": "Key for organizers to join." }
+      },
+      "required": ["name", "duration", "createdAt", "adminUid", "volunteerKey", "headKey", "organizerKey"]
+    },
+    "Alert": {
+      "title": "Alert",
+      "description": "An alert sent within a room.",
+      "type": "object",
+      "properties": {
+        "roomId": { "type": "string", "description": "The ID of the room." },
+        "type": { "type": "string", "enum": ["everyone", "role"], "description": "The type of alert." },
+        "targetRole": { "type": "string", "description": "The target role if type is role-based." },
+        "message": { "type": "string", "description": "The alert message." },
+        "senderUid": { "type": "string", "description": "UID of the sender." },
+        "senderRole": { "type": "string", "description": "Role of the sender." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the alert was sent." }
+      },
+      "required": ["roomId", "type", "message", "senderUid", "senderRole", "createdAt"]
+    },
+    "Location": {
+      "title": "Location",
+      "description": "Live location of a user in a room.",
+      "type": "object",
+      "properties": {
+        "roomId": { "type": "string", "description": "The ID of the room." },
+        "role": { "type": "string", "description": "The role of the user." },
+        "lat": { "type": "number", "description": "Latitude." },
+        "lng": { "type": "number", "description": "Longitude." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "When the location was last updated." }
+      },
+      "required": ["roomId", "role", "lat", "lng", "updatedAt"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User profile within a room.",
+      "type": "object",
+      "properties": {
+        "roomId": { "type": "string", "description": "The ID of the room the user joined." },
+        "role": { "type": "string", "description": "The role of the user in the room." },
+        "name": { "type": "string", "description": "The display name of the user." }
+      },
+      "required": ["roomId", "role", "name"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "A chat message sent within a room.",
+      "type": "object",
+      "properties": {
+        "roomId": { "type": "string", "description": "The ID of the room." },
+        "senderUid": { "type": "string", "description": "UID of the sender." },
+        "senderName": { "type": "string", "description": "Name of the sender." },
+        "senderRole": { "type": "string", "description": "Role of the sender." },
+        "message": { "type": "string", "description": "The message content." },
+        "targetRole": { "type": "string", "description": "The target role (optional, 'everyone' if null)." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the message was sent." }
+      },
+      "required": ["roomId", "senderUid", "senderName", "senderRole", "message", "createdAt"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "A task assigned within a room.",
+      "type": "object",
+      "properties": {
+        "roomId": { "type": "string", "description": "The ID of the room." },
+        "title": { "type": "string", "description": "The title of the task." },
+        "description": { "type": "string", "description": "The description of the task." },
+        "assignedTo": { "type": "string", "description": "UID of the assigned user." },
+        "assignedToName": { "type": "string", "description": "Name of the assigned user." },
+        "status": { "type": "string", "enum": ["pending", "in-progress", "completed"], "description": "The current status." },
+        "priority": { "type": "string", "enum": ["low", "medium", "high"], "description": "The priority level." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the task was created." }
+      },
+      "required": ["roomId", "title", "description", "status", "priority", "createdAt"]
+    },
+    "Activity": {
+      "title": "Activity",
+      "description": "A log of activity within a room.",
+      "type": "object",
+      "properties": {
+        "roomId": { "type": "string", "description": "The ID of the room." },
+        "type": { "type": "string", "enum": ["alert", "task", "user", "panic"], "description": "The type of activity." },
+        "message": { "type": "string", "description": "The activity message." },
+        "userUid": { "type": "string", "description": "UID of the user involved." },
+        "userName": { "type": "string", "description": "Name of the user involved." },
+        "createdAt": { "type": "string", "format": "date-time", "description": "When the activity occurred." }
+      },
+      "required": ["roomId", "type", "message", "userUid", "userName", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/rooms/{roomId}": { "schema": "Room", "description": "Collection of event rooms." },
+    "/alerts/{alertId}": { "schema": "Alert", "description": "Collection of alerts." },
+    "/locations/{userId}": { "schema": "Location", "description": "Collection of user locations." },
+    "/users/{userId}": { "schema": "User", "description": "Collection of user profiles." },
+    "/chats/{chatId}": { "schema": "ChatMessage", "description": "Collection of chat messages." },
+    "/tasks/{taskId}": { "schema": "Task", "description": "Collection of tasks." },
+    "/activities/{activityId}": { "schema": "Activity", "description": "Collection of activities." }
+  }
+}
